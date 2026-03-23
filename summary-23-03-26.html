@@ -1,1 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trade Summary</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+  :root {
+    --gold: #F5C842;
+    --gold-light: #FFE077;
+    --green: #00E5A0;
+    --dark: #080C10;
+    --dark2: #0E1318;
+    --dark3: #141B22;
+    --border: rgba(245,200,66,0.2);
+  }
+
+  body {
+    background: var(--dark);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 560px;
+    background: var(--dark2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 0 80px rgba(245,200,66,0.08), 0 40px 80px rgba(0,0,0,0.6);
+    animation: rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, #0E1318 0%, #141B22 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 36px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(245,200,66,0.12) 0%, transparent 70%);
+  }
+
+  .header-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    opacity: 0.8;
+  }
+
+  .header-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    letter-spacing: 0.04em;
+    color: #fff;
+    line-height: 1;
+  }
+
+  .header-title span {
+    color: var(--gold);
+  }
+
+  .header-date {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    margin-top: 10px;
+    letter-spacing: 0.15em;
+  }
+
+  .clean-badge {
+    position: absolute;
+    top: 28px; right: 36px;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.3);
+    color: var(--green);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    padding: 6px 12px;
+    border-radius: 2px;
+    text-transform: uppercase;
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0,229,160,0.2); }
+    50% { box-shadow: 0 0 0 6px rgba(0,229,160,0); }
+  }
+
+  /* ── STATS ROW ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat {
+    padding: 20px 24px;
+    border-right: 1px solid var(--border);
+    animation: rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .stat:nth-child(1) { animation-delay: 0.1s; }
+  .stat:nth-child(2) { animation-delay: 0.2s; }
+  .stat:nth-child(3) { animation-delay: 0.3s; }
+  .stat:last-child { border-right: none; }
+
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.35);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 34px;
+    color: #fff;
+    line-height: 1;
+  }
+
+  .stat-value.gold { color: var(--gold); }
+  .stat-value.green { color: var(--green); }
+
+  /* ── TRADES ── */
+  .trades {
+    padding: 8px 0;
+  }
+
+  .trade-row {
+    display: flex;
+    align-items: center;
+    padding: 14px 36px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    gap: 16px;
+    animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    transition: background 0.2s;
+  }
+  .trade-row:hover { background: rgba(255,255,255,0.02); }
+  .trade-row:nth-child(1) { animation-delay: 0.35s; }
+  .trade-row:nth-child(2) { animation-delay: 0.45s; }
+  .trade-row:nth-child(3) { animation-delay: 0.55s; }
+  .trade-row:nth-child(4) { animation-delay: 0.65s; }
+  .trade-row:last-child { border-bottom: none; }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-16px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .trade-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.25);
+    width: 24px;
+    flex-shrink: 0;
+  }
+
+  .trade-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    flex: 1;
+  }
+
+  .trade-tp {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    background: rgba(245,200,66,0.08);
+    border: 1px solid rgba(245,200,66,0.2);
+    padding: 3px 9px;
+    border-radius: 2px;
+    letter-spacing: 0.05em;
+  }
+
+  .trade-pips {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--green);
+    width: 90px;
+    text-align: right;
+    letter-spacing: 0.04em;
+  }
+
+  .trade-pips span {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: rgba(0,229,160,0.6);
+    letter-spacing: 0.12em;
+    margin-left: 2px;
+    vertical-align: middle;
+  }
+
+  .tick {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: rgba(0,229,160,0.12);
+    border: 1px solid rgba(0,229,160,0.35);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 11px;
+  }
+
+  /* ── TOTAL BAR ── */
+  .total-bar {
+    margin: 0 24px 24px;
+    background: linear-gradient(90deg, rgba(245,200,66,0.08) 0%, rgba(245,200,66,0.03) 100%);
+    border: 1px solid rgba(245,200,66,0.25);
+    border-radius: 3px;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.75s both;
+  }
+
+  .total-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  .total-pips {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    color: var(--gold-light);
+    letter-spacing: 0.06em;
+    line-height: 1;
+  }
+
+  .total-pips span {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--gold);
+    opacity: 0.7;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+
+  /* ── MOTIVATION ── */
+  .motivation {
+    margin: 0 24px 28px;
+    border-left: 3px solid var(--gold);
+    padding: 16px 20px;
+    background: rgba(245,200,66,0.03);
+    animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.9s both;
+  }
+
+  .motivation p {
+    font-size: 13px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.75;
+  }
+
+  .motivation p strong {
+    color: rgba(255,255,255,0.9);
+    font-weight: 700;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 14px 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    color: rgba(255,255,255,0.18);
+    text-transform: uppercase;
+  }
+
+  .win-rate {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 0.1em;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-label">Daily Report · Forex</div>
+    <div class="header-title">TRADE<br><span>SUMMARY</span></div>
+    <div class="header-date">MON 23 MARCH 2026</div>
+    <div class="clean-badge">✦ CLEAN SWEEP</div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-label">Trades</div>
+      <div class="stat-value gold">4</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Won</div>
+      <div class="stat-value green">4</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Lost</div>
+      <div class="stat-value" style="color:rgba(255,255,255,0.25)">0</div>
+    </div>
+  </div>
+
+  <!-- TRADES -->
+  <div class="trades">
+
+    <div class="trade-row">
+      <div class="trade-num">01</div>
+      <div class="trade-label">Trade 1</div>
+      <div class="trade-tp">TP 4 ✅</div>
+      <div class="trade-pips">110<span>PIPS</span></div>
+      <div class="tick">✓</div>
+    </div>
+
+    <div class="trade-row">
+      <div class="trade-num">02</div>
+      <div class="trade-label">Trade 2</div>
+      <div class="trade-tp">TP 1 ✅</div>
+      <div class="trade-pips">40<span>PIPS</span></div>
+      <div class="tick">✓</div>
+    </div>
+
+    <div class="trade-row">
+      <div class="trade-num">03</div>
+      <div class="trade-label">Trade 3</div>
+      <div class="trade-tp">TP 4 ✅</div>
+      <div class="trade-pips">200<span>PIPS</span></div>
+      <div class="tick">✓</div>
+    </div>
+
+    <div class="trade-row">
+      <div class="trade-num">04</div>
+      <div class="trade-label">Trade 4</div>
+      <div class="trade-tp">TP 3 ✅</div>
+      <div class="trade-pips">80<span>PIPS</span></div>
+      <div class="tick">✓</div>
+    </div>
+
+  </div>
+
+  <!-- TOTAL -->
+  <div class="total-bar">
+    <div>
+      <div class="total-label">🏆 Total Pips Captured</div>
+    </div>
+    <div class="total-pips">430<span>PIPS</span></div>
+  </div>
+
+  <!-- MOTIVATION -->
+  <div class="motivation">
+    <p>
+      <strong>4 trades. 4 wins. Zero losses.</strong> That's not luck — that's preparation meeting execution. Every entry was earned, every target was respected, and the market rewarded the discipline.
+      <br><br>
+      Days like this are proof that the process works. <strong>Keep trusting it. Keep sharpening it.</strong> The scoreboard takes care of itself when the mindset is right. 🚀
+    </p>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-tag">Professional Execution</div>
+    <div class="win-rate">WIN RATE · 100%</div>
+  </div>
+
+</div>
+
+</body>
+</html>
